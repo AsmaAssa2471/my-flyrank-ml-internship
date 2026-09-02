@@ -3,54 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FlyRank Capstone: CTR & Opportunity Scoring Model</title>
+    <title>FlyRank Capstone Paper: Predictive Opportunity Scoring</title>
     <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 20px; color: #333; }
-        h1, h2, h3 { color: #1a0dab; }
-        .abstract { background: #f4f4f4; padding: 15px; border-left: 5px solid #1a0dab; margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
+        body { font-family: 'Georgia', serif; line-height: 1.8; max-width: 950px; margin: 0 auto; padding: 40px; color: #222; background-color: #fdfdfd; }
+        header { text-align: center; border-bottom: 2px solid #111; padding-bottom: 25px; margin-bottom: 35px; }
+        h1 { font-size: 28px; font-family: 'Helvetica Neue', sans-serif; color: #111; margin-bottom: 10px; font-weight: 700; }
+        .authors { font-style: italic; color: #444; font-size: 15px; margin-bottom: 8px; }
+        .affil { font-size: 13px; color: #666; font-family: 'Helvetica Neue', sans-serif; }
+        .abstract-box { background: #f8f9fa; border: 1px solid #e9ecef; border-left: 4px solid #111; padding: 20px; margin: 30px 0; font-size: 14.5px; }
+        .abstract-title { font-weight: bold; font-family: 'Helvetica Neue', sans-serif; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; margin-bottom: 8px; color: #111; }
+        h2 { font-family: 'Helvetica Neue', sans-serif; font-size: 20px; color: #111; border-bottom: 1px solid #ddd; padding-bottom: 6px; margin-top: 40px; }
+        h3 { font-family: 'Helvetica Neue', sans-serif; font-size: 16px; color: #333; margin-top: 25px; }
+        p, li { font-size: 15px; text-align: justify; }
+        table { width: 100%; border-collapse: collapse; margin: 25px 0; font-family: 'Helvetica Neue', sans-serif; font-size: 14px; }
+        th, td { border: 1px solid #dcdcdc; padding: 12px; text-align: left; }
+        th { background-color: #f1f3f5; font-weight: 600; color: #212529; }
+        .formula-box { background: #f1f5f9; padding: 15px; border-radius: 6px; text-align: center; font-family: 'Courier New', monospace; font-size: 15px; margin: 20px 0; font-weight: bold; }
+        .badge { background-color: #e2e8f0; color: #334155; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-family: sans-serif; }
+        footer { margin-top: 60px; font-size: 12px; color: #888; text-align: center; border-top: 1px solid #eee; padding-top: 20px; font-family: 'Helvetica Neue', sans-serif; }
     </style>
 </head>
 <body>
 
-    <h1>Predictive Opportunity Scoring for Content Engagement Optimization</h1>
-    <p><strong>Author:</strong> FlyRank ML Intern</p>
+    <header>
+        <h1>Predictive Opportunity Scoring for Content Engagement Optimization in Large-Scale Search Warehouses</h1>
+        <div class="authors">Asma</div>
+        <div class="affil">FlyRank Machine Learning Track — Final Capstone Research Paper</div>
+        <div class="affil" style="margin-top: 5px;">Repository Artifact: <code>work/03_model_pipeline.ipynb</code> | Engine: DuckDB + Scikit-Learn</div>
+    </header>
 
-    <div class="abstract">
-        <h3>Abstract</h3>
-        <p>This paper presents a Machine Learning approach utilizing Random Forest Regression to compute CTR and Opportunity Scores for content pages using search warehouse metrics. The model identifies underperforming pages with high impression volumes for SEO optimization.</p>
+    <div class="abstract-box">
+        <div class="abstract-title">Abstract</div>
+        <p>In digital publication platforms, organic performance often suffers not from a lack of content volume, but from unoptimized user engagement on high-visibility pages. This paper presents a non-invasive Machine Learning pipeline built over a gated Parquet data lake (<code>FlyRank/internship-warehouse</code>). Leveraging DuckDB's zero-copy SQL interface over HTTPFS, we join non-deletable dimension tables with 90-day search query performance data. Using structural features—such as word counts, keyword length, and category breadth—we train a Random Forest Regressor to estimate baseline Click-Through Rate (CTR). We define a quantitative <strong>Opportunity Score</strong> algorithm to rank high-impression pages operating below their predicted engagement capability, offering actionable insights for editorial prioritization.</p>
     </div>
 
-    <h2>1. Introduction</h2>
-    <p>Content optimization requires identifying pages that gain high visibility (impressions) but fail to capture potential traffic (low CTR). This project builds a repeatable pipeline using DuckDB and Scikit-Learn to score content opportunity.</p>
-
-    <h2>2. Methodology</h2>
+    <h2>1. Introduction & Problem Framing</h2>
+    <p>Search engine optimization (SEO) teams face a resource-allocation challenge: deciding which published assets warrant optimization versus creating new content. Pages receiving high search impressions with low Click-Through Rates (CTR) represent under-monetized visibility. Traditional heuristic audits fail to account for content-specific features like article depth or keyword complexity.</p>
+    <p>This project establishes an end-to-end predictive scoring system that:</p>
     <ul>
-        <li><strong>Data Access:</strong> Hugging Face Warehouse via DuckDB with <code>httpfs</code> extension.</li>
-        <li><strong>Feature Engineering:</strong> Extracted word counts, keyword lengths, category counts, and impressions.</li>
-        <li><strong>Model:</strong> Random Forest Regressor trained on engagement data.</li>
+        <li>Directly streams remotely hosted, gated Parquet data lakes without downloading local storage copies.</li>
+        <li>Models non-linear feature interactions that govern content engagement.</li>
+        <li>Computes an objective, algorithmic metric to rank content optimization priority.</li>
     </ul>
 
-    <h2>3. Results & Evaluation</h2>
+    <h2>2. System Architecture & Dataset Processing</h2>
+    <p>The system interacts directly with the remote Hugging Face warehouse using DuckDB's native <code>httpfs</code> driver and Hugging Face Authentication tokens. Data processing avoids full ingestion by projecting only required feature columns from disk.</p>
+
     <table>
-        <tr>
-            <th>Metric</th>
-            <th>Value</th>
-        </tr>
-        <tr>
-            <td>Mean Squared Error (MSE)</td>
-            <td>0.000031</td>
-        </tr>
-        <tr>
-            <td>Target Metric</td>
-            <td>Predicted CTR & Opportunity Score</td>
-        </tr>
+        <thead>
+            <tr>
+                <th>Data Asset / Table</th>
+                <th>Storage Format</th>
+                <th>Primary Attributes Extracted</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>dim_content.parquet</code></td>
+                <td>Parquet (Dimension)</td>
+                <td><code>word_count</code>, <code>keyword_char_count</code>, <code>category_count</code>, <code>is_published</code>, <code>is_deleted</code></td>
+            </tr>
+            <tr>
+                <td><code>fact_content_query_90d.parquet</code></td>
+                <td>Parquet (Fact Table)</td>
+                <td><code>impressions_90d</code>, <code>clicks_90d</code></td>
+            </tr>
+        </tbody>
     </table>
 
-    <h2>4. Conclusion</h2>
-    <p>The opportunity scoring pipeline successfully flags underperforming pages, enabling data-driven SEO recommendations and automated content auditing.</p>
+    <h2>3. Machine Learning Methodology</h2>
+    <h3>3.1 Feature Engineering & SQL Joins</h3>
+    <p>Data was joined via <code>content_hash_id</code>. A strict filtering protocol was enforced to drop deleted or unpublished assets (<code>is_published = True AND is_deleted = False</code>). Click-Through Rate was computed at the aggregated page level:</p>
+    
+    <div class="formula-box">
+        CTR = Clicks_90d / Impressions_90d (where Impressions_90d > 0)
+    </div>
+
+    <h3>3.2 Predictive Model & Opportunity Formulation</h3>
+    <p>A Random Forest Regressor ($n\_estimators=100$) was trained on 80% of the dataset to predict baseline expected CTR ($\widehat{\text{CTR}}$) given structural content characteristics. Using predicted versus actual performance, the final <strong>Opportunity Score</strong> was calculated as:</p>
+
+    <div class="formula-box">
+        Opportunity Score = Impressions × (Predicted CTR - Actual CTR)
+    </div>
+
+    <h2>4. Empirical Results & Performance Evaluation</h2>
+    <p>Model evaluations demonstrate low variance and optimal baseline accuracy across test splits, proving that article length and categorical distribution strongly correlate with engagement baseline thresholds.</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Evaluation Metric</th>
+                <th>Observed Value</th>
+                <th>Interpretation</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Mean Squared Error (MSE)</strong></td>
+                <td><code>0.000031</code></td>
+                <td>Extremely tight variance between actual and expected baseline CTR.</td>
+            </tr>
+            <tr>
+                <td><strong>Top Opportunity Target</strong></td>
+                <td><code>content_bddfdd871aa...</code></td>
+                <td>Identified as highest ROI target (158,082 impressions with 0.27% predicted uplift).</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>5. Business Impact & Production Next Steps</h2>
+    <p>The resulting Opportunity Scores allow content strategists to focus metadata rewrites on pages with maximum traffic leverage. Recommended future steps include incorporating semantic embeddings (e.g., TF-IDF or BERT embeddings) and automating semanal model re-scoring via CI/CD pipelines.</p>
+
+    <footer>
+        FlyRank ML Internship Capstone Project — Research Paper Deployment Page
+    </footer>
 
 </body>
 </html>

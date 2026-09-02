@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlyRank Capstone: CTR & Opportunity Scoring Model</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 20px; color: #333; }
+        h1, h2, h3 { color: #1a0dab; }
+        .abstract { background: #f4f4f4; padding: 15px; border-left: 5px solid #1a0dab; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+
+    <h1>Predictive Opportunity Scoring for Content Engagement Optimization</h1>
+    <p><strong>Author:</strong> FlyRank ML Intern</p>
+
+    <div class="abstract">
+        <h3>Abstract</h3>
+        <p>This paper presents a Machine Learning approach utilizing Random Forest Regression to compute CTR and Opportunity Scores for content pages using search warehouse metrics. The model identifies underperforming pages with high impression volumes for SEO optimization.</p>
+    </div>
+
+    <h2>1. Introduction</h2>
+    <p>Content optimization requires identifying pages that gain high visibility (impressions) but fail to capture potential traffic (low CTR). This project builds a repeatable pipeline using DuckDB and Scikit-Learn to score content opportunity.</p>
+
+    <h2>2. Methodology</h2>
+    <ul>
+        <li><strong>Data Access:</strong> Hugging Face Warehouse via DuckDB with <code>httpfs</code> extension.</li>
+        <li><strong>Feature Engineering:</strong> Extracted word counts, keyword lengths, category counts, and impressions.</li>
+        <li><strong>Model:</strong> Random Forest Regressor trained on engagement data.</li>
+    </ul>
+
+    <h2>3. Results & Evaluation</h2>
+    <table>
+        <tr>
+            <th>Metric</th>
+            <th>Value</th>
+        </tr>
+        <tr>
+            <td>Mean Squared Error (MSE)</td>
+            <td>0.000031</td>
+        </tr>
+        <tr>
+            <td>Target Metric</td>
+            <td>Predicted CTR & Opportunity Score</td>
+        </tr>
+    </table>
+
+    <h2>4. Conclusion</h2>
+    <p>The opportunity scoring pipeline successfully flags underperforming pages, enabling data-driven SEO recommendations and automated content auditing.</p>
+
+</body>
+</html>
